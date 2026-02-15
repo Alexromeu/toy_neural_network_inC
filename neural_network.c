@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_WEIGHTS 10
-#define MAX_NEURONS_PER_LAY 10
+#define MAX_WEIGHTS 20
+#define MAX_NEURONS_PER_LAY 20
 #define TOTAL_LAYERS 10 
+#define INPUT_LAYER_MAXVAL 10
 
 //OJO: weights are associated with connections
 typedef struct __neuron_t {
@@ -11,6 +12,10 @@ typedef struct __neuron_t {
     float bias;
     float weights[MAX_WEIGHTS];
 } neuron_t;
+
+typedef struct __input_t {
+    float input_values[MAX_NEURONS_PER_LAY];
+} input_t;
 
 typedef struct __layer_t {
     int count;
@@ -42,6 +47,10 @@ void initialize_network(neural_network_t *network) {
             }
         }
     }
+
+    float feed_neuron(neuron_t *neuron, input_t *input, size_t input_count) {
+        //while ()
+    }
    
     for (int i = 0; i < network->num_layers; i++) { 
         for (int j = 0; j < network->layers[i].count; j++) {    
@@ -51,7 +60,8 @@ void initialize_network(neural_network_t *network) {
             }    
         }
     }
-printf("neurons count-> %d\n", count);
+
+    printf("neurons count-> %d\n", count);
     //network so far initialize with #2 to test
     //next we need to add a random nums function to set the values random
     // and set a function to feed input to first layer
