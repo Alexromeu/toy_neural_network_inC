@@ -34,10 +34,6 @@ typedef struct __neural_network_t {
 } neural_network_t;
 
 float random_num(float min, float max) {
-    time_t t = time(NULL);
-    int seed = (int)t;
-    srand(seed);
-
     float scale = rand() / (float)RAND_MAX;
     return min + scale * (max - min);
 }
@@ -63,8 +59,8 @@ void initialize_network(neural_network_t *network) {
         for (int j = 0; j < layer->count; j++) {
             neuron_t *n = &layer->neurons[j];
 
-            n->value = 0;
-            n->bias = 0;
+            n->value = random_num(1, 5);
+            n->bias = random_num(1, 5);
 
             for (int k = 0; k < MAX_WEIGHTS; k++) {
                 
@@ -85,7 +81,10 @@ void initialize_network(neural_network_t *network) {
     //set weights for output weights
     for (int i = 0; i < network->output_layer->count; i++) {
         for (int w = 0; w < MAX_WEIGHTS; w++) {
-            network->output_layer->neurons[i].weights[w] = 0.3;//NEED RANDOM FUNCTION FOR THIS randnum(seed)
+            int prev_layer_size = network->layers[network->num_layers - 1].count;
+            int current_layer_size = network->layers[network->num_layers - 2].count;
+
+            network->output_layer->neurons[i].weights[w] = xavier_init(prev_layer_size, current_layer_size);//NEED RANDOM FUNCTION FOR THIS randnum(seed)
         }
     }
 
@@ -132,16 +131,44 @@ void layer_processing(layer_t *in_layer, layer_t *out_layer) {
     
 }
 
+void print_layer(const char *name, layer_t *layer) {
+    printf("===== %s =====\n", name);
+    printf("Neurons: %d\n", layer->count);
+
+    for (int i = 0; i < layer->count; i++) {
+        neuron_t *n = &layer->neurons[i];
+
+        printf("Neuron %d:\n", i);
+        printf("  value = %f\n", n->value);
+        printf("  bias  = %f\n", n->bias);
+        printf("  weights: ");
+
+        for (int w = 0; w < MAX_WEIGHTS; w++) {
+            printf("%f ", n->weights[w]);
+        }
+
+        printf("\n");
+    }
+
+    printf("\n");
+}
+
 
 int main(void) {
     neural_network_t network;
     network.num_layers = TOTAL_LAYERS;
     initialize_network(&network);
+    srand(time(NULL));
 
     layer_t *layer1 = &(network.layers[0]);
     layer_t *layer2 = &(network.layers[1]);
     layer_t *layer3 = &(network.layers[2]);
     layer_t *output_layer = network.output_layer;
+
+    print_layer("Layer input", layer1);
+    print_layer("Layer layer2", layer2);
+    print_layer("Layer layer3", layer3);
+    print_layer("Layer output layer", output_layer);
 
     layer_processing(layer1, layer2);
     layer_processing(layer2, layer3);
@@ -150,7 +177,6 @@ int main(void) {
     for (int i = 0; i < output_layer->count; i++) {
         printf("%f\n", output_layer->neurons[i].value);
     }
-    float r = random_num(3,2);
-    printf("%f\n", r);
+    
     return 0;
 }
